@@ -1,145 +1,74 @@
-import React from "react";
-import { StyleSheet, Text, View, ListView, Image } from "react-native";
-import { fetch } from "fetch";
-import Icon from "react-native-vector-icons/MaterialIcons";
-import ScrollableTabView from "react-native-scrollable-tab-view";
-import Calls from "./app/components/Calls";
-import Contacts from "./app/components/Contacts";
-import Chats from "./app/components/Chats";
+import React, { Component } from "react";
+import { StyleSheet, Text, View } from "react-native";
 
-const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 != r2 });
-export default class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      selected: 0
-    };
-  }
-  getIcon() {
-    if (this.state.selected === 0) {
-      return "call";
-    } else if (this.state.selected === 1) {
-      return "chat";
-    } else {
-      return "person-add";
+import Home from "./app/components/Home";
+import ChatBox from "./app/components/ChatBox";
+import CallBox from "./app/components/CallBox";
+import ContactSelection from "./app/components/ContactSelection";
+import NavigationExperimental from "react-native-deprecated-custom-components";
+
+export default class App extends Component {
+  _renderScene(route, navigator) {
+    const { state, actions } = this.props;
+    const routeId = route.id;
+
+    if (routeId === "home") {
+      return <Home {...this.props} navigator={navigator} />;
+    } else if (routeId === "chatbox") {
+      return (
+        <ChatBox
+          {...this.props}
+          image={route.image}
+          name={route.name}
+          navigator={navigator}
+        />
+      );
+    } else if (routeId === "callbox") {
+      return (
+        <CallBox
+          {...this.props}
+          image={route.image}
+          name={route.name}
+          navigator={navigator}
+        />
+      );
+    } else if (routeId === "contactselection") {
+      return (
+        <ContactSelection
+          {...this.props}
+          type={route.type}
+          navigator={navigator}
+        />
+      );
     }
   }
-  handleChangeTab(index) {
-    this.setState({ selected: index.i });
-  }
 
-  renderPersonRow(person) {
-    return (
-      <View style={styles.listItemContainer}>
-        <View style={styles.iconContainer}>
-          <Image
-            source={{ uri: person.image }}
-            style={styles.initStyle}
-            resizeMode="contain"
-          />
-        </View>
-        <View style={styles.callerDetailsContainer}>
-          <View style={styles.callerDetailsContainerWrap}>
-            <View style={styles.nameContainer}>
-              <Text>{person.first_name}</Text>
-              <View style={styles.dateContainer}>
-                <Icon
-                  name={person.missed ? "call-missed" : "call-received"}
-                  size={15}
-                  color={person.missed ? "#ed788b" : "#075e54"}
-                />
-                <Text
-                  style={{ fontWeight: "400", color: "#666", fontSize: 12 }}
-                >
-                  {person.date} {person.time}
-                </Text>
-              </View>
-            </View>
-            <View style={styles.callIconContainer}>
-              <Icon
-                name="phone"
-                color="#075e54"
-                size={23}
-                style={{ padding: 5 }}
-              />
-            </View>
-          </View>
-        </View>
-      </View>
-    );
+  _configureScene(route, routeStack) {
+    const routeId = route.id;
+    if (routeId === "contactselection") {
+      return NavigationExperimental.Navigator.SceneConfigs.FloatFromBottom;
+    } else {
+      return NavigationExperimental.Navigator.SceneConfigs.FloatFromRight;
+    }
   }
-
   render() {
     return (
-      <View style={styles.mainContainer}>
-        <View style={styles.headerContainer}>
-          <View style={styles.leftHeaderContainer}>
-            <Text style={styles.logoText}>WhatsApp</Text>
-          </View>
-          <View style={styles.rightHeaderContainer}>
-            <Icon name="search" color="#fff" size={23} style={{ padding: 5 }} />
-            <Icon
-              name={this.getIcon()}
-              color="#fff"
-              size={23}
-              style={{ padding: 5 }}
-            />
-            <Icon
-              name="more-vert"
-              color="#fff"
-              size={23}
-              style={{ padding: 5 }}
-            />
-          </View>
-        </View>
-        <View style={styles.contentContainer}>
-          <ScrollableTabView
-            tabBarUnderlineColor="#fff"
-            tabBarUnderlineStyle={{ backgroundColor: "#fff" }}
-            tabBarBackgroundColor="#075e54"
-            tabBarActiveTextColor="#fff"
-            tabBarInactiveTextColor="#88b0ac"
-            onChangeTab={index => this.handleChangeTab(index)}
-          >
-            <Calls tabLabel="CALLS" {...this.props} />
-            <Chats tabLabel="CHATS" {...this.props} />
-            <Contacts tabLabel="CONTACTS" {...this.props} />
-          </ScrollableTabView>
-        </View>
+      <View style={{ flex: 1 }}>
+        <NavigationExperimental.Navigator
+          style={{ flex: 1 }}
+          ref={"NAV"}
+          initialRoute={{ id: "home", name: "home" }}
+          renderScene={this._renderScene.bind(this)}
+          configureScene={this._configureScene.bind(this)}
+        />
       </View>
     );
   }
 }
+
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
-    backgroundColor: "#F5FCFF",
-    height: 24
-  },
-  headerContainer: {
-    flex: 1,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    backgroundColor: "#075e54",
-    alignItems: "center",
-    paddingRight: 5
-  },
-  leftHeaderContainer: {
-    alignItems: "flex-start",
-    flexDirection: "row"
-  },
-  rightHeaderContainer: {
-    alignItems: "flex-end",
-    flexDirection: "row"
-  },
-  contentContainer: {
-    flex: 6
-  },
-  logoText: {
-    color: "white",
-    fontWeight: "bold",
-    fontSize: 16,
-    alignItems: "flex-start",
-    marginLeft: 10
+    backgroundColor: "#F5FCFF"
   }
 });

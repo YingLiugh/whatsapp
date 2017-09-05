@@ -20,7 +20,7 @@ class Contacts extends Component {
     };
   }
   render() {
-    return (
+    return this.state.loaded ? (
       <ListView
         initialListSize={5}
         enableEmptySections={true}
@@ -29,6 +29,14 @@ class Contacts extends Component {
           return this.renderPersonRow(person);
         }}
       />
+    ) : (
+      <Text
+        onPress={() => {
+          this.props.navigator.push({ id: "chatbox" });
+        }}
+      >
+                Retrieving Chats...
+      </Text>
     );
   }
   renderPersonRow(person) {

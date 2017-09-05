@@ -1,5 +1,12 @@
 import React, { Component } from "react";
-import { StyleSheet, Text, ListView, Image, View } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  ListView,
+  Image,
+  View,
+  TouchableOpacity
+} from "react-native";
 import { fetch } from "fetch";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { WHATSAPP_CALLS_API } from "../data/data";
@@ -13,7 +20,7 @@ class Calls extends Component {
     };
   }
   render() {
-    return (
+    return this.state.loaded ? (
       <ListView
         initialListSize={5}
         enableEmptySections={true}
@@ -22,46 +29,64 @@ class Calls extends Component {
           return this.renderPersonRow(person);
         }}
       />
+    ) : (
+      <Text
+        onPress={() => {
+          this.props.navigator.push({ id: "chatbox" });
+        }}
+      >
+                Retrieving Chats...
+      </Text>
     );
   }
   renderPersonRow(person) {
     return (
-      <View style={styles.listItemContainer}>
-        <View style={styles.iconContainer}>
-          <Image
-            source={{ uri: person.image }}
-            style={styles.initStyle}
-            resizeMode="contain"
-          />
-        </View>
-        <View style={styles.callerDetailsContainer}>
-          <View style={styles.callerDetailsContainerWrap}>
-            <View style={styles.nameContainer}>
-              <Text>{person.first_name}</Text>
-              <View style={styles.dateContainer}>
-                <Icon
-                  name={person.missed ? "call-missed" : "call-received"}
-                  size={15}
-                  color={person.missed ? "#ed788b" : "#075e54"}
-                />
-                <Text
-                  style={{ fontWeight: "400", color: "#666", fontSize: 12 }}
-                >
-                  {person.date} {person.time}
-                </Text>
+      <TouchableOpacity
+        onPress={() => {
+          this.props.navigator.push({
+            id: "callbox",
+            image: person.image,
+            name: person.first_name
+          });
+        }}
+      >
+        <View style={styles.listItemContainer}>
+          <View style={styles.iconContainer}>
+            <Image
+              source={{ uri: person.image }}
+              style={styles.initStyle}
+              resizeMode="contain"
+            />
+          </View>
+          <View style={styles.callerDetailsContainer}>
+            <View style={styles.callerDetailsContainerWrap}>
+              <View style={styles.nameContainer}>
+                <Text>{person.first_name}</Text>
+                <View style={styles.dateContainer}>
+                  <Icon
+                    name={person.missed ? "call-missed" : "call-received"}
+                    size={15}
+                    color={person.missed ? "#ed788b" : "#075e54"}
+                  />
+                  <Text
+                    style={{ fontWeight: "400", color: "#666", fontSize: 12 }}
+                  >
+                    {person.date} {person.time}
+                  </Text>
+                </View>
               </View>
-            </View>
-            <View style={styles.callIconContainer}>
-              <Icon
-                name="phone"
-                color="#075e54"
-                size={23}
-                style={{ padding: 5 }}
-              />
+              <View style={styles.callIconContainer}>
+                <Icon
+                  name="phone"
+                  color="#075e54"
+                  size={23}
+                  style={{ padding: 5 }}
+                />
+              </View>
             </View>
           </View>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   }
   componentDidMount() {
